@@ -9,37 +9,39 @@
 <body>
     <script src="https://unpkg.com/vue@next"></script>
     <div id="app"></div>
+    <div class="container" :class="styles">
+        <p>Ask a yes/no question:
+        <input v-model="question" />
+        </p>
+        <p>{{ answer }}</p>
+    </div>
     <script>
         const vm = Vue.createApp({
             data() {
-                return {
-                    text: "Puerta cerrada",
-                    open: false,
+                 return {
+                     question: '',
+                     answer: 'Questions usually contain a question mark. ;-)'
                 };
             },
             watch: {
-                open(value) {
-                    if (value) {
-                        this.text = "Puerta abierta";
-                    } else {
-                        this.text = "Puerta cerrada";
+            // whenever question changes, this function will run
+            question(newQuestion, oldQuestion) {
+            if (newQuestion.indexOf('?') > -1) {
+                this.getAnswer()}
+            }
+            },
+            methods: {
+                async getAnswer() {
+                this.answer = 'Thinking...'
+                    try {
+                        const res = await fetch('https://yesno.wtf/api')
+                        this.answer = (await res.json()).answer
+                    } catch (error) {
+                        this.answer = 'Error! Could not reach the API. ' + error
                     }
                 }
-            },
-            computed: {
-                label() {
-                    return this.open ? "Cerrar" : "Abrir";
-                },
-                styles() {
-                    return this.open ? ['open'] : ['closed'];
-                }
-            },
-            template: `
-            <div class="container" :class="styles">
-                <h2>{{ text }}</h2>
-                <button @click="open = !open">{{ label }}</button>
-            </div>
-            `
+            }
+            
         }).mount("#app");
     </script>
     <style>
@@ -57,18 +59,13 @@
             height: 100%;
         }
         button {
+
             margin-top: 24px;
             border: none;
             background-color: white;
             padding: 8px 24px;
             border-radius: 12px;
         }
-        .closed {
-            background-color: #eca1a6;
-        }
-        .open {
-            background-color: #b5e7a0;
-        }
     </style>
 </body>
-</html
+</html>
